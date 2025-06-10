@@ -6,6 +6,8 @@ import 'dotenv/config'
 
 import Hello from './Hello.js'
 import Lab5 from './Lab5/index.js'
+import CourseRoutes from './Kambaz/Courses/routes.js'
+import ModuleRoutes from './Kambaz/Modules/routes.js'
 import UserRoutes from './Kambaz/Users/routes.js'
 
 const app = express()
@@ -40,5 +42,7 @@ app.use(express.json()) // make sure this comes AFTER configuring cors and sessi
 Lab5(app)
 Hello(app)
 UserRoutes(app)
+CourseRoutes(app)
+ModuleRoutes(app)
 
 app.listen(process.env.PORT || 4000)
