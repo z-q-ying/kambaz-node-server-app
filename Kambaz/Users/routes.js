@@ -9,7 +9,7 @@ export default function UserRoutes(app) {
 
   const findAllUsers = (req, res) => {
     const users = dao.findAllUsers()
-    res.send(users)
+    res.json(users)
   }
 
   const findUserById = (req, res) => {}
@@ -80,15 +80,15 @@ export default function UserRoutes(app) {
     res.json(newCourse)
   }
 
+  app.post('/api/users/signin', signin)
+  app.post('/api/users/profile', profile)
+  app.post('/api/users/signup', signup)
+  app.put('/api/users/:userId', updateUser)
   app.post('/api/users', createUser)
   app.get('/api/users', findAllUsers)
   app.get('/api/users/:userId', findUserById)
-  app.put('/api/users/:userId', updateUser)
   app.delete('/api/users/:userId', deleteUser)
-  app.post('/api/users/signup', signup)
-  app.post('/api/users/signin', signin)
   app.post('/api/users/signout', signout)
-  app.post('/api/users/profile', profile)
 
   // User-Course Enrollments
   app.get('/api/users/:userId/courses', findCoursesForEnrolledUser)
