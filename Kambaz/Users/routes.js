@@ -93,4 +93,42 @@ export default function UserRoutes(app) {
   // User-Course Enrollments
   app.get('/api/users/:userId/courses', findCoursesForEnrolledUser)
   app.post('/api/users/current/courses', createCourse) // Create and enroll current user
+
+  // Enroll a user in a course
+  app.post('/api/users/enroll/:userId/:courseId', (req, res) => {
+    let { userId, courseId } = req.params
+    if (userId === 'current') {
+      const currentUser = req.session['currentUser']
+      if (!currentUser) {
+        res.status(401).json({ message: 'User not logged in' })
+        return
+      }
+      userId = currentUser._id
+    }
+    const newEnrollment = enrollmentsDao.enrollUserInCourse(userId, courseId)
+    res.status(201).json(newEnrollment)
+  })
+
+  // Delete: Unenroll a user from a course
+  app.delete('/api/users/enroll/:userId/:courseId', (req, res) => {
+    let { userId, courseId } = req.params
+    if (userId === 'current') {
+      const currentUser = req.session['currentUser']
+      if (!currentUser) {
+        res.status(401).json({ message: 'User not logged in' })
+        return
+      }
+      userId = currentUser._id
+    }
+    const success = enrollmentsDao.unenrollUserFromCourse(userId, courseId)
+    if (success) {
+      res
+        .status(204)
+        .json({ success: true, message: 'Unenrollment successful' })
+    } else {
+      res
+        .status(404)
+        .json({ success: false, message: 'Unenrollment not found' })
+    }
+  })
 }
