@@ -26,7 +26,7 @@ export function createCourse(course) {
   return newCourse
 }
 
-// Remove a course by its ID and all enrollments associated with it
+// Delete a course by its ID and remove all associated enrollments
 export function deleteCourse(courseId) {
   const { courses, enrollments } = Database
   const initialCourseCount = courses.length
@@ -37,7 +37,7 @@ export function deleteCourse(courseId) {
   return initialCourseCount > Database.courses.length
 }
 
-// Update a course
+// Update a course by its ID
 export function updateCourse(courseId, courseUpdates) {
   const { courses } = Database
   const course = courses.find(course => course._id === courseId)
