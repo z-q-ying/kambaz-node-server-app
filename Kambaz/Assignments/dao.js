@@ -1,11 +1,14 @@
 import { v4 as uuidv4 } from 'uuid'
-
-import Database from '../Database/index.js'
+import model from './model.js'
 
 // Read: Retrieve assignments for selected course
 export function findAssignmentsForCourse(courseId) {
-  const { assignments } = Database
-  return assignments.filter(group => group.courseId === courseId)
+  return model.find({ courseId: courseId })
+}
+
+// Find all assignment groups
+export function findAllAssignmentGroups() {
+  return model.find()
 }
 
 // Create: Create a new assignment group for selected course
@@ -16,78 +19,72 @@ export function createAssignmentGroup(courseId, group) {
     courseId: courseId,
     assignments: [],
   }
-  Database.assignments.push(newGroup)
-  console.log('!!! Dao: New assignment group created:', newGroup)
-  console.log('!!! Dao: All assignment groups:', Database.assignments)
-  return newGroup
+  return model.create(newGroup)
 }
 
 // Update: Update selected assignment group
-export function updateAssignmentGroup(groupId, updates) {
-  const { assignments } = Database
-  const group = assignments.find(g => g._id === groupId)
-  if (!group) {
-    return false // Group not found
+export async function updateAssignmentGroup(groupId, updates) {
+  const result = await model.updateOne({ _id: groupId }, { $set: updates })
+  if (result.matchedCount > 0) {
+    return await model.findById(groupId)
   }
-  Object.assign(group, updates) // Update specified fields, not the entire object
-  return group
+  return null
 }
 
 // Delete: Delete selected assignment group and its associated assignments
 export function deleteAssignmentGroup(groupId) {
-  const { assignments } = Database
-  const initialCount = assignments.length
-  Database.assignments = assignments.filter(group => group._id !== groupId)
-  return initialCount > Database.assignments.length
+  return model.deleteOne({ _id: groupId })
 }
 
 // Create: Create a new assignment item for selected group
-export function createAssignment(groupId, assignment) {
-  const { assignments } = Database
-  const group = assignments.find(g => g._id === groupId)
-  if (!group) {
-    return null // Group not found
-  }
+export async function createAssignment(groupId, assignment) {
   const newAssignment = {
     ...assignment,
     _id: uuidv4(),
   }
-  group.assignments.push(newAssignment)
-  return newAssignment
+
+  const result = await model.updateOne(
+    { _id: groupId },
+    { $push: { assignments: newAssignment } }
+  )
+
+  if (result.matchedCount > 0) {
+    return newAssignment
+  }
+  return null
 }
 
 // Update: Update selected assignment
-export function updateAssignment(assignmentId, updates) {
-  let { assignments } = Database
+export async function updateAssignment(assignmentId, updates) {
   const { assignmentGroupId, assignmentGroupName, ...assignmentData } = updates
-  console.log(
-    '!!! Dao: Updating assmt for ',
-    assignmentGroupId,
-    assignmentGroupName
+
+  // Remove the assignment from all groups first
+  await model.updateMany({}, { $pull: { assignments: { _id: assignmentId } } })
+
+  // Add to the new group
+  const result = await model.updateOne(
+    { _id: assignmentGroupId },
+    { $push: { assignments: assignmentData } }
   )
 
-  // Delete the old assignment by assignmentId (as group might change)
-  assignments.forEach(group => {
-    group.assignments = group.assignments.filter(a => a._id !== assignmentId)
-  })
-  // Add to the new group as group might change
-  const group = assignments.find(g => g._id === assignmentGroupId)
-  if (!group) {
-    return null
+  if (result.matchedCount > 0) {
+    return await model.findById(assignmentGroupId)
   }
-  group.assignments.push(assignmentData)
-  return group
+  return null
 }
 
 // Delete: Delete selected assignment
-export function deleteAssignment(assignmentId) {
-  const { assignments } = Database
-  for (const group of assignments) {
-    const initialCount = group.assignments.length
-    group.assignments = group.assignments.filter(a => a._id !== assignmentId)
-    if (initialCount > group.assignments.length) {
-      return group
-    }
+export async function deleteAssignment(assignmentId) {
+  const result = await model.updateOne(
+    { 'assignments._id': assignmentId },
+    { $pull: { assignments: { _id: assignmentId } } }
+  )
+
+  if (result.matchedCount > 0) {
+    const group = await model.findOne({
+      'assignments._id': { $ne: assignmentId },
+    })
+    return group
   }
   return null
 }
