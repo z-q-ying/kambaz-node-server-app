@@ -8,6 +8,11 @@ export function findAllCourses() {
   return model.find()
 }
 
+// Read: Find a course by its ID
+export function findCourseById(courseId) {
+  return model.findById(courseId)
+}
+
 // Create: Add a new course
 export function createCourse(course) {
   const newCourse = { ...course, _id: uuidv4() }
