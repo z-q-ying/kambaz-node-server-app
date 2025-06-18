@@ -70,4 +70,62 @@ export default function ModuleRoutes(app) {
       res.status(500).json({ error: error.message })
     }
   })
+
+  // Add a lesson to a module
+  app.post('/api/modules/:moduleId/lessons', async (req, res) => {
+    try {
+      const { moduleId } = req.params
+      const lesson = req.body
+      const updatedModule = await modulesDao.addLessonToModule(moduleId, lesson)
+      if (updatedModule) {
+        res.status(201).json(updatedModule)
+      } else {
+        res.status(404).json({ success: false, message: 'Module not found' })
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  })
+
+  // Update a lesson in a module
+  app.put('/api/modules/:moduleId/lessons/:lessonId', async (req, res) => {
+    try {
+      const { moduleId, lessonId } = req.params
+      const lessonUpdates = req.body
+      const updatedModule = await modulesDao.updateLessonInModule(
+        moduleId,
+        lessonId,
+        lessonUpdates
+      )
+      if (updatedModule) {
+        res.status(200).json(updatedModule)
+      } else {
+        res
+          .status(404)
+          .json({ success: false, message: 'Module or lesson not found' })
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  })
+
+  // Delete a lesson from a module
+  app.delete('/api/modules/:moduleId/lessons/:lessonId', async (req, res) => {
+    try {
+      const { moduleId, lessonId } = req.params
+      const updatedModule = await modulesDao.deleteLessonFromModule(
+        moduleId,
+        lessonId
+      )
+      if (updatedModule) {
+        res.status(200).json(updatedModule)
+      } else {
+        res
+          .status(404)
+          .json({ success: false, message: 'Module or lesson not found' })
+      }
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  })
 }
