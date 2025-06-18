@@ -7,7 +7,18 @@ export default function CourseRoutes(app) {
   app.get('/api/courses', async (req, res) => {
     try {
       const courses = await coursesDao.findAllCourses()
-      res.send(courses)
+      res.json(courses)
+    } catch (error) {
+      res.status(500).json({ error: error.message })
+    }
+  })
+
+  // Get a single course by ID
+  app.get('/api/courses/:courseId', async (req, res) => {
+    try {
+      const { courseId } = req.params
+      const course = await coursesDao.findCourseById(courseId)
+      res.json(course)
     } catch (error) {
       res.status(500).json({ error: error.message })
     }
@@ -29,7 +40,9 @@ export default function CourseRoutes(app) {
       const { courseId } = req.params
       const result = await coursesDao.deleteCourse(courseId)
       if (result.deletedCount > 0) {
-        res.status(200).json({ success: true, message: 'Course deleted successfully' })
+        res
+          .status(200)
+          .json({ success: true, message: 'Course deleted successfully' })
       } else {
         res.status(404).json({ success: false, message: 'Course not found' })
       }
@@ -45,7 +58,9 @@ export default function CourseRoutes(app) {
       const courseUpdates = req.body
       const result = await coursesDao.updateCourse(courseId, courseUpdates)
       if (result.matchedCount > 0) {
-        res.status(204).json({ success: true, message: 'Course updated successfully' })
+        res
+          .status(204)
+          .json({ success: true, message: 'Course updated successfully' })
       } else {
         res.status(404).json({ success: false, message: 'Course not found' })
       }
