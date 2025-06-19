@@ -11,6 +11,7 @@ import AssignmentRoutes from './Kambaz/Assignments/routes.js'
 import CourseRoutes from './Kambaz/Courses/routes.js'
 import EnrollmentsRoutes from './Kambaz/Enrollments/routes.js'
 import ModuleRoutes from './Kambaz/Modules/routes.js'
+import QuizRoutes from './Kambaz/Quizzes/routes.js'
 import UserRoutes from './Kambaz/Users/routes.js'
 
 const CONNECTION_STRING =
@@ -52,6 +53,7 @@ AssignmentRoutes(app)
 CourseRoutes(app)
 EnrollmentsRoutes(app)
 ModuleRoutes(app)
+QuizRoutes(app)
 UserRoutes(app)
 
 app.listen(process.env.PORT || 4000)
