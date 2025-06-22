@@ -43,13 +43,8 @@ const quizSchema = new mongoose.Schema(
     timeLimit: { type: Number }, // in minutes
     shuffleAnswers: { type: Boolean, default: false },
 
-    // Questions - using ref approach like existing modules
-    // TODO: Implement Question model and populate
+    // Questions (external reference)
     questions: [{ type: String, ref: 'QuestionModel' }],
-
-    // Timestamps
-    createdAt: { type: Date, default: Date.now },
-    updatedAt: { type: Date, default: Date.now },
   },
   {
     collection: 'quizzes',
@@ -58,12 +53,12 @@ const quizSchema = new mongoose.Schema(
   }
 )
 
-// Virtual field to calculate the total number of questions
+// Virtual field: Total number of questions
 quizSchema.virtual('totalQuestions').get(function () {
   return this.questions ? this.questions.length : 0
 })
 
-// Virtual field for availability status
+// Virtual field: Availability status
 quizSchema.virtual('availabilityStatus').get(function () {
   const now = new Date()
   if (this.availableDate && now < this.availableDate) {

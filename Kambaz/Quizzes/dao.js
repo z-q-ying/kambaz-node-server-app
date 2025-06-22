@@ -1,27 +1,15 @@
 import { v4 as uuidv4 } from 'uuid'
 import model from './model.js'
+import * as questionsDao from '../Questions/dao.js'
 
 // Find all quizzes for a specific course
 export function findQuizzesForCourse(courseId) {
-  return model
-    .find({ courseId: courseId })
-    .sort({ availableDate: 1, createdAt: -1 })
-}
-
-// Find all quizzes
-export function findAllQuizzes() {
-  return model.find()
+  return model.find({ courseId: courseId }).sort({ availableDate: 1 })
 }
 
 // Find a quiz by its ID
 export function findQuizById(quizId) {
   return model.findById(quizId)
-}
-
-// Find a quiz by its ID with populated questions
-// TODO: Implement when Question model is ready
-export function findQuizByIdWithQuestions(quizId) {
-  return model.findById(quizId).populate('questions')
 }
 
 // Find published quizzes for a course (for students)
@@ -31,7 +19,7 @@ export function findPublishedQuizzesForCourse(courseId) {
       courseId: courseId,
       published: true,
     })
-    .sort({ availableDate: 1, createdAt: -1 })
+    .sort({ availableDate: 1 })
 }
 
 // Create a new quiz
@@ -40,19 +28,13 @@ export function createQuiz(quiz) {
     ...quiz,
     _id: uuidv4(),
     questions: quiz.questions || [],
-    createdAt: new Date(),
-    updatedAt: new Date(),
   }
   return model.create(newQuiz)
 }
 
 // Update a quiz by its ID
 export async function updateQuiz(quizId, quizUpdates) {
-  const updates = {
-    ...quizUpdates,
-    updatedAt: new Date(),
-  }
-  const result = await model.updateOne({ _id: quizId }, { $set: updates })
+  const result = await model.updateOne({ _id: quizId }, { $set: quizUpdates })
   if (result.matchedCount > 0) {
     return await model.findById(quizId)
   }
@@ -71,7 +53,6 @@ export async function toggleQuizPublishStatus(quizId, published) {
     {
       $set: {
         published: published,
-        updatedAt: new Date(),
       },
     }
   )
@@ -87,7 +68,6 @@ export async function addQuestionToQuiz(quizId, questionId) {
     { _id: quizId },
     {
       $push: { questions: questionId },
-      $set: { updatedAt: new Date() },
     }
   )
   if (result.matchedCount > 0) {
@@ -102,11 +82,20 @@ export async function removeQuestionFromQuiz(quizId, questionId) {
     { _id: quizId },
     {
       $pull: { questions: questionId },
-      $set: { updatedAt: new Date() },
     }
   )
   if (result.matchedCount > 0) {
     return await model.findById(quizId)
   }
   return null
+}
+
+// Get updated points for a quiz
+export async function updateQuizTotalPoints(quizId) {
+  const totalPoints = await questionsDao.getTotalPointsForQuiz(quizId)
+  const result = await model.updateOne(
+    { _id: quizId },
+    { $set: { points: totalPoints } }
+  )
+  return result.matchedCount > 0
 }

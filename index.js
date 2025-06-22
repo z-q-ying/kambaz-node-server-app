@@ -12,6 +12,7 @@ import AttemptRoutes from './Kambaz/Attempts/routes.js'
 import CourseRoutes from './Kambaz/Courses/routes.js'
 import EnrollmentsRoutes from './Kambaz/Enrollments/routes.js'
 import ModuleRoutes from './Kambaz/Modules/routes.js'
+import QuestionRoutes from './Kambaz/Questions/routes.js'
 import QuizRoutes from './Kambaz/Quizzes/routes.js'
 import UserRoutes from './Kambaz/Users/routes.js'
 
@@ -55,6 +56,7 @@ AttemptRoutes(app)
 CourseRoutes(app)
 EnrollmentsRoutes(app)
 ModuleRoutes(app)
+QuestionRoutes(app)
 QuizRoutes(app)
 UserRoutes(app)
 
