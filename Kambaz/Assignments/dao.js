@@ -6,11 +6,6 @@ export function findAssignmentsForCourse(courseId) {
   return model.find({ courseId: courseId })
 }
 
-// Find all assignment groups
-export function findAllAssignmentGroups() {
-  return model.find()
-}
-
 // Create: Create a new assignment group for selected course
 export function createAssignmentGroup(courseId, group) {
   const newGroup = {
@@ -66,7 +61,6 @@ export async function updateAssignment(assignmentId, updates) {
     { _id: assignmentGroupId },
     { $push: { assignments: assignmentData } }
   )
-
   if (result.matchedCount > 0) {
     return await model.findById(assignmentGroupId)
   }

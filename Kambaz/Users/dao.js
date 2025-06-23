@@ -6,6 +6,12 @@ export const createUser = user => {
   const newUser = {
     ...user,
     _id: uuidv4(),
+    loginId: Math.random().toString(36).substring(2, 15).toUpperCase(),
+    section: 'S101',
+    lastActivity: new Date(),
+    totalActivity: `${Math.floor(Math.random() * 24)}:${Math.floor(
+      Math.random() * 60
+    )}:${Math.floor(Math.random() * 60)}`,
   }
   return model.create(newUser)
 }
