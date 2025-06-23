@@ -5,7 +5,7 @@ export default function AttemptRoutes(app) {
   app.get('/api/quizzes/:qid/attempts/student/:sid', async (req, res) => {
     const { qid, sid } = req.params
     const attempts = await dao.findAttemptsForStudent(qid, sid)
-    res.send(attempts)
+    res.json(attempts)
   })
 
   // Create a new attempt
@@ -13,7 +13,14 @@ export default function AttemptRoutes(app) {
     const { qid } = req.params
     const attempt = { ...req.body, quizId: qid }
     const newAttempt = await dao.createAttempt(attempt)
-    res.send(newAttempt)
+    res.json(newAttempt)
+  })
+
+  // Get attempt by ID
+  app.get('/api/attempts/:aid', async (req, res) => {
+    const { aid } = req.params
+    const attempt = await dao.findAttemptById(aid)
+    res.json(attempt)
   })
 
   // Update an existing attempt
@@ -21,6 +28,6 @@ export default function AttemptRoutes(app) {
     const { aid } = req.params
     const attempt = { ...req.body, _id: aid }
     await dao.updateAttempt(attempt)
-    res.send(attempt)
+    res.json(attempt)
   })
 }
